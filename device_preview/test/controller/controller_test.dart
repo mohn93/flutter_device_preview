@@ -330,6 +330,21 @@ void main() {
       expect(result.showSystemUi, false);
     });
 
+    test('applyPreset and setOrientation preserve showFrame — the DevTools '
+        'panel treats it as a device-switch-surviving override', () async {
+      final ControllerHarness harness = ControllerHarness();
+      addTearDown(harness.dispose);
+      await harness.controller.apply(
+        const DeviceSimulation(showFrame: false),
+      );
+      // Device switch keeps the hidden frame.
+      await harness.controller.applyPreset(DevicePresets.iPhone16);
+      expect(harness.controller.simulation!.showFrame, false);
+      // Rotation keeps it too.
+      await harness.controller.setOrientation(Orientation.landscape);
+      expect(harness.controller.simulation!.showFrame, false);
+    });
+
     test('a raised keyboard survives a device switch, at the new device '
         'height, and drops on a device that has none', () async {
       final ControllerHarness harness = ControllerHarness();

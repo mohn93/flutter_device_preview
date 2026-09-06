@@ -337,6 +337,16 @@ class PanelController extends ChangeNotifier {
   /// Whether a screen size simulation is active (enables orientation toggle).
   bool get hasSimulatedScreen => simulation?['screenSize'] != null;
 
+  /// Whether the active device has a frame (screen outline / body artwork) to
+  /// show or hide.
+  bool get hasFrame => simulation?['frame'] != null;
+
+  /// Whether that frame is currently rendered (the default).
+  ///
+  /// Turning it off keeps the device's metrics but paints the app flat — no
+  /// bezel, no rounded-corner / notch clip.
+  bool get showFrame => simulation?['showFrame'] != false;
+
   /// Whether the active device draws a simulated status bar / gesture pill.
   bool get hasSystemUi => simulation?['systemUi'] != null;
 
@@ -674,6 +684,14 @@ class PanelController extends ChangeNotifier {
       await _pushSimulation(sim);
     });
   }
+
+  /// Shows or hides the device frame (bezel and screen clip).
+  ///
+  /// Not a metric field: the choice survives switching device, exactly like
+  /// the brightness or text scale overrides do. Hiding it keeps the device's
+  /// metrics but paints the app flat — useful for frameless captures.
+  Future<void> setShowFrame(bool value) =>
+      _mutate('showFrame', value ? null : false);
 
   /// Shows or hides the simulated system UI.
   ///

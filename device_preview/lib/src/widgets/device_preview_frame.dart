@@ -169,8 +169,11 @@ class RenderDevicePreviewFrame extends RenderProxyBox {
   /// Rebuilt (and its parsed artwork thrown away) only when the simulated
   /// frame actually changes.
   DeviceFramePainter? get _activePainter {
-    final DeviceFrame? frame = _simulation.value?.frame;
-    if (frame == null) {
+    final DeviceSimulation? simulation = _simulation.value;
+    final DeviceFrame? frame = simulation?.frame;
+    // A hidden frame (showFrame: false) drops both the body artwork and the
+    // screen clip, so the app paints flat while keeping the frame's metrics.
+    if (frame == null || !(simulation?.showFrame ?? true)) {
       _painter = null;
       return null;
     }

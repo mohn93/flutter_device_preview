@@ -32,6 +32,7 @@ class DeviceSimulation {
     this.orientation = Orientation.portrait,
     this.screenSize,
     this.frame,
+    this.showFrame = true,
     this.systemUi,
     this.showSystemUi = true,
     this.touchInput,
@@ -68,6 +69,9 @@ class DeviceSimulation {
       frame: json['frame'] == null
           ? null
           : DeviceFrame.fromJson(decodeMap(json['frame'], 'frame')),
+      showFrame: json['showFrame'] == null
+          ? true
+          : decodeBool(json['showFrame'], 'showFrame'),
       systemUi: json['systemUi'] == null
           ? null
           : SystemUiSimulation.fromJson(decodeMap(json['systemUi'], 'systemUi')),
@@ -164,6 +168,18 @@ class DeviceSimulation {
   /// frame is always described in portrait and rotated with [orientation], so
   /// rotating a simulation leaves this field untouched.
   final DeviceFrame? frame;
+
+  /// Whether the [frame] is rendered. True by default.
+  ///
+  /// When false, the [frame]'s body artwork and its screen outline clip are
+  /// both dropped, so the app paints as a plain rectangle — but the frame's
+  /// metrics (screen size, safe-area padding, pixel ratio) still apply, since
+  /// those live in their own fields. This yields a flat, notch-free capture at
+  /// a real device's exact metrics, which a null [frame] cannot express.
+  ///
+  /// A pure display switch, like [showSystemUi]: it changes nothing the app
+  /// can observe. Meaningful only when [frame] is non-null.
+  final bool showFrame;
 
   /// Decorative system UI — status bar, gesture pill — drawn over the app.
   ///
@@ -314,7 +330,7 @@ class DeviceSimulation {
     }
     final ui.Rect screen = ui.Offset.zero & size;
     final DeviceFrame? deviceFrame = frame;
-    if (deviceFrame == null || deviceFrame.size.isEmpty) {
+    if (!showFrame || deviceFrame == null || deviceFrame.size.isEmpty) {
       return screen;
     }
     return screen.expandToInclude(deviceFrame.bodyBounds(size, orientation));
@@ -336,6 +352,7 @@ class DeviceSimulation {
     Orientation? orientation,
     Object? screenSize = _unset,
     Object? frame = _unset,
+    bool? showFrame,
     Object? systemUi = _unset,
     bool? showSystemUi,
     Object? touchInput = _unset,
@@ -362,6 +379,7 @@ class DeviceSimulation {
           ? this.screenSize
           : screenSize as ui.Size?,
       frame: identical(frame, _unset) ? this.frame : frame as DeviceFrame?,
+      showFrame: showFrame ?? this.showFrame,
       systemUi: identical(systemUi, _unset)
           ? this.systemUi
           : systemUi as SystemUiSimulation?,
@@ -420,6 +438,8 @@ class DeviceSimulation {
       'orientation': orientation.name,
       if (screenSize != null) 'screenSize': encodeSize(screenSize!),
       if (frame != null) 'frame': frame!.toJson(),
+      // Absent means "shown": only the non-default travels.
+      if (!showFrame) 'showFrame': false,
       if (systemUi != null) 'systemUi': systemUi!.toJson(),
       // Absent means "shown": only the non-default travels.
       if (!showSystemUi) 'showSystemUi': false,
@@ -456,6 +476,7 @@ class DeviceSimulation {
         other.orientation == orientation &&
         other.screenSize == screenSize &&
         other.frame == frame &&
+        other.showFrame == showFrame &&
         other.systemUi == systemUi &&
         other.showSystemUi == showSystemUi &&
         other.touchInput == touchInput &&
@@ -475,11 +496,12 @@ class DeviceSimulation {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll(<Object?>[
     presetId,
     orientation,
     screenSize,
     frame,
+    showFrame,
     systemUi,
     showSystemUi,
     touchInput,
@@ -496,7 +518,7 @@ class DeviceSimulation {
     accessibility,
     alwaysUse24HourFormat,
     targetPlatform,
-  );
+  ]);
 
   @override
   String toString() {
@@ -505,6 +527,7 @@ class DeviceSimulation {
       'orientation: ${orientation.name}',
       if (screenSize != null) 'screenSize: $screenSize',
       if (frame != null) 'frame: $frame',
+      if (!showFrame) 'showFrame: false',
       if (systemUi != null) 'systemUi: $systemUi',
       if (!showSystemUi) 'showSystemUi: false',
       if (touchInput != null) 'touchInput: $touchInput',

@@ -179,6 +179,42 @@ void main() {
     });
   });
 
+  group('DeviceSimulation showFrame', () {
+    test('defaults to true and is absent from toJson', () {
+      expect(const DeviceSimulation().showFrame, isTrue);
+      expect(
+        const DeviceSimulation().toJson().containsKey('showFrame'),
+        isFalse,
+      );
+    });
+
+    test('only the non-default (false) travels and round-trips', () {
+      const hidden = DeviceSimulation(showFrame: false);
+      expect(hidden.toJson()['showFrame'], isFalse);
+      expect(DeviceSimulation.fromJson(hidden.toJson()), hidden);
+      expect(DeviceSimulation.fromJson(hidden.toJson()).showFrame, isFalse);
+    });
+
+    test('copyWith sets it and keeps it when omitted', () {
+      const framed = DeviceSimulation();
+      expect(framed.copyWith(showFrame: false).showFrame, isFalse);
+      expect(
+        framed.copyWith(showFrame: false).copyWith().showFrame,
+        isFalse,
+      );
+    });
+
+    test('changes equality and toString', () {
+      const framed = DeviceSimulation(screenSize: ui.Size(100, 100));
+      expect(framed, isNot(framed.copyWith(showFrame: false)));
+      expect(
+        framed.copyWith(showFrame: false).toString(),
+        contains('showFrame: false'),
+      );
+      expect(framed.toString(), isNot(contains('showFrame')));
+    });
+  });
+
   group('DeviceSimulation copyWith sentinel semantics', () {
     const base = DeviceSimulation(
       textScaleFactor: 1.5,

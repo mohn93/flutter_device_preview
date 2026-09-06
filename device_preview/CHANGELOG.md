@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add `DeviceSimulation.showFrame` (default `true`) and a **Device frame**
+  switch in the DevTools panel. Turning it off keeps the device's metrics
+  (screen size, safe areas, pixel ratio) but drops the body artwork and the
+  screen-outline clip, so the app renders as a plain rectangle — a flat,
+  notch-free capture at a real device's exact metrics.
+
 ## 3.0.0
 
 The stable 3.0 release — a from-scratch rebuild of Device Preview. If you are

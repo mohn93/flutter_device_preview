@@ -97,6 +97,27 @@ void main() {
       expect(frameRenderObject(), isNot(paints..clipPath()));
     });
 
+    testWidgets('showFrame: false paints flat, keeping the metrics', (
+      WidgetTester tester,
+    ) async {
+      await binding.devicePreview!.apply(
+        kFramedSimulation.copyWith(showFrame: false),
+      );
+      await tester.pumpWidget(const ColoredBox(color: Color(0xFFFFFFFF)));
+
+      final RenderDevicePreviewFrame render = frameRenderObject();
+      // No body artwork, no screen clip: the app paints as a plain rectangle.
+      expect(_recordPaths(render), isEmpty);
+      expect(render, isNot(paints..clipPath()));
+      // The metrics survive: the screen keeps its simulated size, and the
+      // letterbox collapses to the screen rect (no room reserved for a body).
+      expect(render.size, const Size(200, 400));
+      expect(
+        binding.devicePreview!.simulation!.contentBounds,
+        const Rect.fromLTRB(0, 0, 200, 400),
+      );
+    });
+
     testWidgets('landscape rotates the body a quarter turn', (
       WidgetTester tester,
     ) async {

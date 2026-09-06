@@ -605,6 +605,24 @@ void main() {
       expect(gateway.simulation?['systemUi'], isNull);
     });
 
+    test('the device frame toggle survives switching device', () async {
+      await ready();
+      await controller!.selectPreset(const PresetView(testFramedPresetJson));
+      expect(controller!.hasFrame, isTrue);
+      expect(controller!.showFrame, isTrue);
+
+      await controller!.setShowFrame(false);
+      expect(gateway.simulation?['showFrame'], isFalse);
+      expect(controller!.showFrame, isFalse);
+
+      // Not a metric field: picking another device keeps the choice.
+      await controller!.selectPreset(const PresetView(testPhonePresetJson));
+      expect(gateway.simulation?['showFrame'], isFalse);
+      expect(gateway.simulation?['presetId'], 'test-phone');
+      // …and that device has no frame to hide anyway.
+      expect(controller!.hasFrame, isFalse);
+    });
+
     test('the system UI toggle survives switching device', () async {
       await ready();
       await controller!.selectPreset(const PresetView(testFramedPresetJson));

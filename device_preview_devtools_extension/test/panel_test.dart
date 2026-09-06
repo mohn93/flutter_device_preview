@@ -162,6 +162,28 @@ void main() {
       expect(gateway.simulation, {'platformBrightness': 'dark'});
     });
 
+    testWidgets('device frame switch is disabled without a frame',
+        (tester) async {
+      await pumpPanel(tester);
+      final disabled = tester.widget<Switch>(
+        find.byKey(const Key('device_preview_frame_switch')),
+      );
+      expect(disabled.onChanged, isNull);
+      expect(disabled.value, isTrue);
+
+      await controller.selectPreset(const PresetView(testFramedPresetJson));
+      await tester.pumpAndSettle();
+      final enabled = tester.widget<Switch>(
+        find.byKey(const Key('device_preview_frame_switch')),
+      );
+      expect(enabled.onChanged, isNotNull);
+
+      await tester
+          .tap(find.byKey(const Key('device_preview_frame_switch')));
+      await tester.pumpAndSettle();
+      expect(gateway.simulation?['showFrame'], isFalse);
+    });
+
     testWidgets('system UI switch is disabled without simulated bars',
         (tester) async {
       await pumpPanel(tester);

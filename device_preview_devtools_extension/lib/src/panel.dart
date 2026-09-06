@@ -343,6 +343,17 @@ class _DeviceSection extends StatelessWidget {
         ),
         const SizedBox(height: denseSpacing),
         _LabeledRow(
+          label: 'Device frame',
+          child: Switch(
+            key: const Key('device_preview_frame_switch'),
+            value: controller.showFrame,
+            onChanged: controller.hasFrame
+                ? (value) => controller.setShowFrame(value)
+                : null,
+          ),
+        ),
+        const SizedBox(height: denseSpacing),
+        _LabeledRow(
           label: 'System UI',
           child: Switch(
             key: const Key('device_preview_system_ui_switch'),

@@ -208,6 +208,13 @@ catalog into plain `const` data — no images, no SVG dependency, and presets
 your app never references tree-shake away, artwork included. Frames are
 described in portrait and rotate with the device.
 
+`DeviceSimulation.showFrame` (the panel's **Device frame** switch) hides the
+frame without dropping the device: the body artwork and the screen clip both
+go, so the app paints as a plain rectangle, but the screen size, safe-area
+padding and pixel ratio still apply. This is the way to capture a real device
+at its exact metrics with square corners and no notch — something a null
+`frame` cannot express, since that also drops the metrics.
+
 Devices also carry a simulated **system UI** (`DeviceSimulation.systemUi`): a
 static status bar and gesture pill — the clock is a still drawing that never
 ticks —

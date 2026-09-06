@@ -333,6 +333,7 @@ class DevicePreviewControllerImpl implements DevicePreviewController {
         alwaysUse24HourFormat: current.alwaysUse24HourFormat,
         targetPlatform: current.targetPlatform,
         touchInput: current.touchInput,
+        showFrame: current.showFrame,
         showSystemUi: current.showSystemUi,
         // A raised keyboard survives a device switch, but its height is the
         // new device's: what carries over is "the keyboard is up", not how

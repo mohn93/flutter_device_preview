@@ -173,7 +173,7 @@ class RenderDevicePreviewFrame extends RenderProxyBox {
     final DeviceFrame? frame = simulation?.frame;
     // A hidden frame (showFrame: false) drops both the body artwork and the
     // screen clip, so the app paints flat while keeping the frame's metrics.
-    if (frame == null || !(simulation?.showFrame ?? true)) {
+    if (frame == null || !simulation!.showFrame) {
       _painter = null;
       return null;
     }

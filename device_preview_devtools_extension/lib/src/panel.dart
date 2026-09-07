@@ -137,6 +137,24 @@ class _Toolbar extends StatelessWidget {
       ),
       actions: [
         if (controller.status == PanelStatus.ready) ...[
+          Tooltip(
+            message: controller.previewEnabled
+                ? 'Disable device simulation (pass through to the real device)'
+                : 'Enable device simulation',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Simulate', style: theme.textTheme.bodySmall),
+                const SizedBox(width: denseSpacing),
+                Switch(
+                  key: const Key('device_preview_enable_switch'),
+                  value: controller.previewEnabled,
+                  onChanged: (value) => controller.setPreviewEnabled(value),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: denseSpacing),
           DevToolsButton(
             icon: Icons.restart_alt,
             label: 'Reset',

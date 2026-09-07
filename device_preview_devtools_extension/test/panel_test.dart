@@ -58,6 +58,29 @@ void main() {
     });
   });
 
+  group('header', () {
+    testWidgets('enable switch turns simulation off (pass-through) and back on',
+        (tester) async {
+      await controller.selectPreset(const PresetView(testPhonePresetJson));
+      await pumpPanel(tester);
+      const key = Key('device_preview_enable_switch');
+      // A device is active → the switch is on.
+      expect(tester.widget<Switch>(find.byKey(key)).value, isTrue);
+
+      // Off → pass-through (no simulation).
+      await tester.tap(find.byKey(key));
+      await tester.pumpAndSettle();
+      expect(gateway.simulation, isNull);
+      expect(tester.widget<Switch>(find.byKey(key)).value, isFalse);
+
+      // On → the same device is restored.
+      await tester.tap(find.byKey(key));
+      await tester.pumpAndSettle();
+      expect(gateway.simulation?['presetId'], 'test-phone');
+      expect(tester.widget<Switch>(find.byKey(key)).value, isTrue);
+    });
+  });
+
   group('device section', () {
     testWidgets('shows sections and the active device label', (tester) async {
       await controller.selectPreset(const PresetView(testPhonePresetJson));

@@ -623,6 +623,34 @@ void main() {
       expect(controller!.hasFrame, isFalse);
     });
 
+    test('the enable switch disables to pass-through and re-enables the same '
+        'device', () async {
+      await ready();
+      await controller!.selectPreset(const PresetView(testFramedPresetJson));
+      expect(controller!.previewEnabled, isTrue);
+      expect(gateway.simulation?['presetId'], 'test-framed');
+
+      // Disable: pass through to the real device.
+      await controller!.setPreviewEnabled(false);
+      expect(controller!.previewEnabled, isFalse);
+      expect(gateway.simulation, isNull);
+
+      // Enable again: the same device is restored, not a blank default.
+      await controller!.setPreviewEnabled(true);
+      expect(controller!.previewEnabled, isTrue);
+      expect(gateway.simulation?['presetId'], 'test-framed');
+    });
+
+    test('the enable switch falls back to a preset when nothing to restore',
+        () async {
+      await ready();
+      expect(controller!.previewEnabled, isFalse);
+
+      await controller!.setPreviewEnabled(true);
+      expect(controller!.previewEnabled, isTrue);
+      expect(gateway.simulation?['presetId'], isNotNull);
+    });
+
     test('the system UI toggle survives switching device', () async {
       await ready();
       await controller!.selectPreset(const PresetView(testFramedPresetJson));

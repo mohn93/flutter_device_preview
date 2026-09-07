@@ -279,6 +279,9 @@ class PanelController extends ChangeNotifier {
   /// [_storage] (not keyed per inspected app: a device is a device).
   List<PresetView> _userDevices = const <PresetView>[];
   Map<String, Object?>? _stashedSimulation;
+  // The simulation captured when the enable switch is turned off, so turning
+  // it back on restores the same device instead of a blank default.
+  Map<String, Object?>? _disabledSimulation;
   bool _keepAcrossRestarts = false;
   bool _disposed = false;
 
@@ -309,6 +312,10 @@ class PanelController extends ChangeNotifier {
 
   /// The active simulation JSON, or null when passing through.
   Map<String, Object?>? get simulation => state?.simulation;
+
+  /// Whether a simulation is currently active (vs. passing through to the real
+  /// device). Drives the header enable/disable switch.
+  bool get previewEnabled => simulation != null;
 
   /// The devices offered by the picker: the user's imported devices, the
   /// built-in catalog (minus any entry a user device overrides by id),
@@ -774,6 +781,31 @@ class PanelController extends ChangeNotifier {
   }
 
   /// Clears the whole simulation (`ext.device_preview.reset`).
+  /// Enables or disables the whole simulation from a single switch.
+  ///
+  /// Disabling passes through to the real device (like [resetAll]) but
+  /// remembers the active simulation so enabling restores the same device;
+  /// with nothing to restore it falls back to the previous stash, then to the
+  /// first available preset.
+  Future<void> setPreviewEnabled(bool enabled) async {
+    if (enabled == previewEnabled) return;
+    if (!enabled) {
+      final current = simulation;
+      _disabledSimulation = current == null ? null : _deepCopy(current);
+      await resetAll();
+      return;
+    }
+    final restore =
+        _disabledSimulation ?? _stashedSimulation ?? _readStoredStash();
+    _disabledSimulation = null;
+    if (restore != null) {
+      // reconcile so the panel's local state reflects the restored device.
+      await _pushSimulation(restore, source: 'enable');
+    } else if (presets.isNotEmpty) {
+      await selectPreset(presets.first);
+    }
+  }
+
   Future<void> resetAll() {
     return _enqueueWrite(() async {
       try {
